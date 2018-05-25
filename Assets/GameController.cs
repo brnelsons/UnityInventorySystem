@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Inventory;
+﻿using Inventory;
 using UnityEngine;
 
 public class GameController : MonoBehaviour {
@@ -16,7 +14,7 @@ public class GameController : MonoBehaviour {
 	private void OnGUI() {
 		if (TestItemPrefab != null && GUI.Button(new Rect(200, 200, 200, 200), "Click to add"))
 		{
-			InventoryEventManager.AddItem(Instantiate(TestItemPrefab, transform, false));
+			InventoryEventManager.AddItem(Instantiate(TestItemPrefab, transform, false), null);
 		}
 	}
 }

@@ -1,11 +1,13 @@
-﻿namespace Inventory {
+﻿using JetBrains.Annotations;
+
+namespace Inventory {
     public class InventoryEventManager {
         public static event InventoryEventDelegates.AddItem OnAddItem;
 
-        public static void AddItem(IItem item) {
+        public static void AddItem([NotNull] IItem item, [CanBeNull] InventoryEventDelegates.Extras extras) {
             if (OnAddItem != null)
             {
-                OnAddItem(item);
+                OnAddItem(item, extras);
             }
         }
     }

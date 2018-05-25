@@ -3,11 +3,13 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Inventory {
-    public class InventoryItemHolder : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler {
+    public class InventoryItemHolder : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler {
         public IItem InventoryItem;
 
         private Image _image;
         private Vector3 _originalPosition;
+
+        public int Index { get; set; }
 
         private GameObject _dragwrapper;
 
@@ -16,10 +18,19 @@ namespace Inventory {
         }
 
         public void SetItem(IItem item) {
+            var alpha = 1f;
+            if (item == null)
+            {
+                alpha = 0f;
+            }
+            else
+            {
+                _image.sprite = item.GetSprite();
+            }
+
             InventoryItem = item;
-            _image.sprite = item.GetSprite();
             var tmpColor = _image.color;
-            tmpColor.a = 1f;
+            tmpColor.a = alpha;
             _image.color = tmpColor;
         }
 
@@ -31,17 +42,32 @@ namespace Inventory {
             if (InventoryItem == null) return;
             _dragwrapper = new GameObject("Dragging");
             _dragwrapper.transform.parent = GameObject.Find("Canvas").transform;
-            _dragwrapper.AddComponent<Image>().sprite = _image.sprite;
+            var image = _dragwrapper.AddComponent<Image>();
+            image.sprite = _image.sprite;
+            image.raycastTarget = false;
         }
 
         public void OnDrag(PointerEventData eventData) {
-            if (InventoryItem == null) return;
+            if (_dragwrapper == null) return;
             _dragwrapper.transform.position = Input.mousePosition;
         }
 
         public void OnEndDrag(PointerEventData eventData) {
-            if (InventoryItem == null) return;
+            if (_dragwrapper == null) return;
             Destroy(_dragwrapper);
+        }
+
+        public void OnDrop(PointerEventData eventData) {
+            var otherItemHolder = eventData.pointerDrag.GetComponent<InventoryItemHolder>();
+            if (otherItemHolder != null)
+            {
+                var extras = new InventoryEventDelegates.Extras {
+                    Index = Index,
+                    OtherContainer = gameObject.GetComponentInParent<IItemContainer>(),
+                    OtherIndex = otherItemHolder.Index
+                };
+                InventoryEventManager.AddItem(otherItemHolder.GetItem(), extras);
+            }
         }
     }
 }
