@@ -1,17 +1,16 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Inventory {
-    public class InventoryItemHolder: MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler {
+    public class InventoryItemHolder : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler {
         public IItem InventoryItem;
 
         private Image _image;
         private Vector3 _originalPosition;
 
         private GameObject _dragwrapper;
-        
+
         private void Start() {
             _image = GetComponent<Image>();
         }
