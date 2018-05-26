@@ -2,19 +2,27 @@
 using UnityEngine;
 
 public class GameController : MonoBehaviour {
-
-	public InventoryItem TestItemPrefab;
+	private static InventoryEventDelegates.Extras Extras = new InventoryEventDelegates.Extras();
 	
-	// Use this for initialization
-	void Start () {
-		
-	}
+	public InventoryItem TestItemPrefab;
+	public InventoryItem TestItemPrefab2;
+	
+	private bool _other;
 	
 	// Update is called once per frame
 	private void OnGUI() {
 		if (TestItemPrefab != null && GUI.Button(new Rect(200, 200, 200, 200), "Click to add"))
 		{
-			InventoryEventManager.AddItem(Instantiate(TestItemPrefab, transform, false), null);
+			if (_other)
+			{
+				InventoryEventManager.AddItem(Instantiate(TestItemPrefab, transform, false), Extras);
+			}
+			else
+			{
+				InventoryEventManager.AddItem(Instantiate(TestItemPrefab2, transform, false), Extras);
+			}
+
+			_other = !_other;
 		}
 	}
 }

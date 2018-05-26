@@ -1,6 +1,5 @@
-﻿using System;
+﻿using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Inventory {
     public class InventoryView : MonoBehaviour, IItemContainer {
@@ -8,10 +7,9 @@ namespace Inventory {
         public InventorySlotView InventorySlotViewPrefab;
 
         private InventorySlotView[] _slots;
-        private InventoryDatabase _items;
-        
+
         private void Start() {
-            _slots = InitWithSize(Size);
+            SetSize(Size);
         }
 
         private void OnEnable() {
@@ -22,78 +20,54 @@ namespace Inventory {
             InventoryEventManager.OnAddItem -= InventoryEventManagerOnOnAddItem;
         }
 
+        private void InventoryEventManagerOnOnAddItem([CanBeNull] IItem item,
+                                                      [NotNull] InventoryEventDelegates.Extras extras) {
+            InventoryUtils.AddOrSwitchItems(this, item, extras);
+        }
+
+        public int GetSize() {
+            return Size;
+        }
+
+        public void SetSize(int size) {
+            var slotContainer = GameObject.Find("SlotContainer");
+            var oldSlots = _slots;
+            _slots = new InventorySlotView[size];
+            for (var i = 0; i < size; i++)
+            {
+                _slots[i] = Instantiate(InventorySlotViewPrefab, slotContainer.transform, false);
+                _slots[i].GetInventoryItemHolder().Index = i;
+            }
+
+            Size = size;
+            InventoryUtils.Clone(oldSlots, _slots);
+        }
+
         public bool Add(IItem item) {
-            //TODO i dont need this right now.
+            for (var i = 0; i < Size; i++)
+            {
+                if (TrySet(item, i)) return true;
+            }
+
             return false;
         }
 
-        public void Remove(IItem item, int index) {
-            if (_items.GetItem(index) == item)
-            {
-                SetItemAt(null, index, true);
-            }
+        public IItem Set(IItem item, int index) {
+            var oldItem = _slots[index].GetItem();
+            _slots[index].SetItem(item);
+            return oldItem;
         }
 
-        private InventorySlotView[] InitWithSize(int size) {
-            var slots = new InventorySlotView[size];
-            _items = new InventoryDatabase(size);
-            var slotContainer = GameObject.Find("SlotContainer");
-            for (var i = 0; i < size; i++)
-            {
-                slots[i] = Instantiate(InventorySlotViewPrefab, slotContainer.transform, false);
-                GetItemHolder(slots, i).Index = i;
-            }
-
-            return slots;
-        }
-
-        private static InventoryItemHolder GetItemHolder(InventorySlotView[] slots, int i) {
-            return slots[i].gameObject.GetComponentInChildren<InventoryItemHolder>();
-        }
-
-        private void InventoryEventManagerOnOnAddItem(IItem item, InventoryEventDelegates.Extras extras) {
-            if (extras != null && extras.Index != -1)
-            {
-                if (extras.Index < Size)
-                {
-                    if (SetItemAt(item, extras.Index, false))
-                    {
-                        if (extras.OtherContainer != null)
-                        {
-                            extras.OtherContainer.Remove(item, extras.OtherIndex);
-                        }
-                        return;
-                    }
-                    else if(extras.OtherContainer == this)
-                    {
-                        //switch the items
-                        
-                    }
-                }
-            }
-            for (var i = 0; i < Size; i++)
-            {
-                if (SetItemAt(item, i, false))
-                {
-                    if (extras != null && extras.OtherContainer != null)
-                    {
-                        extras.OtherContainer.Remove(item, extras.OtherIndex);
-                    }
-                    return;
-                }
-            }
-            Debug.Log("Did not actually add the item, something is wrong!");
-        }
-
-        private bool SetItemAt(IItem item, int i, bool force) {
-            var inventoryItemHolder = _slots[i].gameObject.GetComponentInChildren<InventoryItemHolder>();
-            if (inventoryItemHolder == null) return false;
-            if (inventoryItemHolder.GetItem() != null && !force) return false;
-            Debug.Log("Added Item");
-            inventoryItemHolder.SetItem(item);
-            _items.SetItem(item, i);
+        public bool TrySet(IItem item, int index) {
+            if (_slots[index].GetItem() != null) return false;
+            _slots[index].SetItem(item);
             return true;
+        }
 
+        public IItem Remove(int index) {
+            var remove = _slots[index].GetItem();
+            _slots[index].SetItem(null);
+            return remove;
         }
     }
 }
