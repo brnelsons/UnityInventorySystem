@@ -1,12 +1,15 @@
-﻿using UnityEngine;
+﻿using bnelson.Inventory.core;
+using bnelson.Inventory.example;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Inventory {
-    public class InventoryItemHolder : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler {
-        public IItem InventoryItem;
+namespace bnelson.Inventory.UnityComponents {
+    public class ItemView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler {
+        public IItemStack ItemStack;
 
         private Image _image;
+        private Text _countText;
         private Vector3 _originalPosition;
 
         public int Index { get; set; }
@@ -14,32 +17,35 @@ namespace Inventory {
         private GameObject _dragwrapper;
 
         private void Start() {
+            ItemStack = new ItemStack();
             _image = GetComponent<Image>();
+            _countText = GetComponent<Text>();
         }
 
-        public void SetItem(IItem item) {
+        public void SetItemStack(IItemStack itemStack) {
             var alpha = 1f;
-            if (item == null)
+            if (itemStack.GetCount() == 0)
             {
                 alpha = 0f;
+                _image.sprite = null;
             }
             else
             {
-                _image.sprite = item.GetSprite();
+                _image.sprite = itemStack.GetItems()[0].GetSprite();
             }
 
-            InventoryItem = item;
+            ItemStack = itemStack;
             var tmpColor = _image.color;
             tmpColor.a = alpha;
             _image.color = tmpColor;
         }
 
-        public IItem GetItem() {
-            return InventoryItem;
+        public IItemStack GetItemStack() {
+            return ItemStack;
         }
 
         public void OnBeginDrag(PointerEventData eventData) {
-            if (InventoryItem == null) return;
+            if (ItemStack.GetCount() == 0) return;
             _dragwrapper = new GameObject("Dragging");
             _dragwrapper.transform.parent = GameObject.Find("Canvas").transform;
             var image = _dragwrapper.AddComponent<Image>();
@@ -58,16 +64,15 @@ namespace Inventory {
         }
 
         public void OnDrop(PointerEventData eventData) {
-            var otherItemHolder = eventData.pointerDrag.GetComponent<InventoryItemHolder>();
-            if (otherItemHolder != null)
-            {
-                var extras = new InventoryEventDelegates.Extras {
-                    Index = Index,
-                    OtherContainer = gameObject.GetComponentInParent<IItemContainer>(),
-                    OtherIndex = otherItemHolder.Index
-                };
-                InventoryEventManager.AddItem(otherItemHolder.GetItem(), extras);
-            }
+            var otherItemHolder = eventData.pointerDrag.GetComponent<ItemView>();
+            if (otherItemHolder == null) return;
+            var extras = new InventoryEventDelegates.Extras {
+                ToIndex = Index,
+                ToContainer = gameObject.GetComponentInParent<IItemContainer>(),
+                FromContainer = otherItemHolder.GetComponentInParent<IItemContainer>(),
+                FromIndex = otherItemHolder.Index
+            };
+            InventoryEventManager.AddItem(otherItemHolder.GetItemStack(), extras);
         }
     }
 }

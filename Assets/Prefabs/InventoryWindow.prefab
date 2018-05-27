@@ -73,6 +73,8 @@ GameObject:
   - component: {fileID: 222638042824819992}
   - component: {fileID: 114649226054227978}
   - component: {fileID: 114214353864324320}
+  - component: {fileID: 114409553341785500}
+  - component: {fileID: 114555281250843256}
   m_Layer: 5
   m_Name: SlotContainer
   m_TagString: Untagged
@@ -90,7 +92,6 @@ GameObject:
   - component: {fileID: 224563725361742226}
   - component: {fileID: 222023021951533616}
   - component: {fileID: 114897596277920414}
-  - component: {fileID: 114334604167121626}
   m_Layer: 5
   m_Name: InventoryWindow
   m_TagString: Untagged
@@ -148,20 +149,53 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!114 &114334604167121626
+--- !u!114 &114409553341785500
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1827485399608304}
+  m_GameObject: {fileID: 1573500542553656}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 83bd046f8a398e44bbd2576d1acefdcd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Size: 25
-  InventorySlotViewPrefab: {fileID: 114755759883923804, guid: bcfea5d2c577d4b4380a2c44034828d8,
+  Size: 12
+  ItemSlotViewPrefab: {fileID: 114755759883923804, guid: bcfea5d2c577d4b4380a2c44034828d8,
     type: 2}
+  IsPlayerPrimaryInventory: 1
+--- !u!114 &114555281250843256
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1573500542553656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 10
+    i1: 0
+    i2: 230
+    i3: 100
+    i4: 252
+    i5: 217
+    i6: 236
+    i7: 84
+    i8: 104
+    i9: 61
+    i10: 218
+    i11: 48
+    i12: 189
+    i13: 0
+    i14: 99
+    i15: 2
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 0
 --- !u!114 &114649226054227978
 MonoBehaviour:
   m_ObjectHideFlags: 1
