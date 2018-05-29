@@ -2,9 +2,13 @@
 
 namespace bnelson.Inventory.core {
     public interface IHasItemStack {
-        [NotNull]
+        [CanBeNull]
         IItemStack GetItemStack();
 
-        void SetItemStack([NotNull] IItemStack itemStack);
+        void SetItemStack([CanBeNull] IItemStack itemStack);
+
+        void SwapItemStack([NotNull] IHasItemStack hasItemStack);
+
+        void Update();
     }
 }

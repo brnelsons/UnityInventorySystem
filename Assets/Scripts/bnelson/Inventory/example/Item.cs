@@ -8,6 +8,11 @@ namespace bnelson.Inventory.example {
         public bool IsStackable = true;
         public int MaxStackCount = 100;
 
+        private void Start() {
+            if (Name == "")Debug.Log("Name cannot be left empty");
+            if (Sprite == null)Debug.Log("Sprite cannot be null");
+        }
+
         public Sprite GetSprite() {
             return Sprite;
         }

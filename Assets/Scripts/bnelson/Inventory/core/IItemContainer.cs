@@ -4,6 +4,8 @@
     /// Holds items and allows for basic management of items
     /// </summary>
     public interface IItemContainer {
+        string Name { get; set; }
+
         /// <summary>
         /// Get the size of the container
         /// </summary>
@@ -20,19 +22,12 @@
         /// <summary>
         /// Attempts to add the item
         /// </summary>
-        /// <param name="item">the item to add</param>
+        /// <param name="itemStackToAdd">the item to add</param>
         /// <returns>whether the item was added</returns>
-        bool Add(IItem item);
+        bool Add(IItemStack itemStackToAdd);
 
-        /// <summary>
-        /// Attempts to add the item
-        /// </summary>
-        /// <param name="item">the item to add</param>
-        /// <returns>whether the item was added</returns>
-        bool Add(IItemStack item);
+        void Update();
 
-        IHasItemStack Get(int index);
-        
-        void MergeOrSwap(IItemContainer itemContainer, int index);
+        IHasItemStack GetHasItemStack(int index);
     }
 }

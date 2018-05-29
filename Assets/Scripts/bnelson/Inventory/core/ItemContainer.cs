@@ -1,22 +1,26 @@
-﻿using bnelson.Inventory.example;
+﻿using JetBrains.Annotations;
 
 namespace bnelson.Inventory.core {
+    /// <inheritdoc />
     /// <summary>
     /// This is to be used as a delegating container. This should never extend MonoBehavior or NetworkBehavior
     /// </summary>
     /// <typeparam name="T">The Object that holds an IItem</typeparam>
     public class ItemContainer<T> : IItemContainer where T : IHasItemStack {
         public delegate T HasItemInitializer(int index);
-
+    
         private int _size;
 
         private T[] _stacks;
         private readonly HasItemInitializer _hasItemInitializer;
 
-        public ItemContainer(int size, HasItemInitializer hasItemInitializer) {
+        public ItemContainer(int size,
+                             [NotNull] HasItemInitializer hasItemInitializer) {
             _hasItemInitializer = hasItemInitializer;
             SetSize(size);
         }
+
+        public string Name { get; set; }
 
         public int GetSize() {
             return _size;
@@ -34,35 +38,46 @@ namespace bnelson.Inventory.core {
             InventoryUtils.CloneStack(oldSlots, _stacks);
         }
 
-        public bool Add(IItem item) {
-            return Add(ItemStack.Of(item));
-        }
-
-        public bool Add(IItemStack item) {
+        public bool Add(IItemStack itemStackToAdd) {
+            IHasItemStack firstOpenStack = null;
             foreach (var stack in _stacks)
             {
-                if(stack.GetItemStack().Add(stack.GetItemStack())) return true;
+                var itemStack = stack.GetItemStack();
+                if (firstOpenStack == null
+                    && (itemStack == null
+                        || itemStack.GetCount() == 0))
+                {
+                    firstOpenStack = stack;
+                    continue;
+                }
+
+                if (itemStack != null
+                    && itemStack.GetItemName() == itemStackToAdd.GetItemName()
+                    && itemStack.Merge(itemStackToAdd))
+                {
+                    return true;
+                }
+            }
+
+            if (firstOpenStack != null)
+            {
+                firstOpenStack.SetItemStack(itemStackToAdd);
+                return true;
             }
 
             return false;
         }
 
-        public IHasItemStack Get(int index) {
-            //TODO check for out of bounds here
-            return _stacks[index];
+        public void Update() {
+            foreach (var stack in _stacks)
+            {
+                stack.Update();
+            }
         }
 
-        public void MergeOrSwap(IItemContainer itemContainer, int index) {
-            var otherItemStack = itemContainer.Get(index);
-            var thisItemStack = _stacks[index];
-            if (thisItemStack.GetItemStack().Add(otherItemStack.GetItemStack()))
-            {
-                return;
-            }
-
-            var temp = thisItemStack.GetItemStack();
-            thisItemStack.SetItemStack(otherItemStack.GetItemStack());
-            otherItemStack.SetItemStack(temp);
+        public IHasItemStack GetHasItemStack(int index) {
+            //TODO check for out of bounds here
+            return _stacks[index];
         }
     }
 }
